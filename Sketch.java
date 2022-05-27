@@ -6,6 +6,8 @@ public class Sketch extends PApplet {
 	// Declare global variables
   PImage imgGrass;
   PImage imgHoles;
+  PImage imgScope;
+  PImage imgGunShot;
   float[] fltHoleX = new float[10];
   float[] fltHoleY = new float[10];
   boolean isFinish = false;
@@ -28,6 +30,10 @@ public class Sketch extends PApplet {
     background(imgGrass);
     imgHoles = loadImage("soil_PNG43.png");
     imgHoles.resize(width / 10, height / 10);
+    imgScope = loadImage("Scope_PNG.png");
+    imgScope.resize(width / 8, height / 8);
+    imgGunShot = loadImage("GunShot.png"); 
+    imgGunShot.resize(width / 8, height / 8);
   }
 
   /**
@@ -37,7 +43,6 @@ public class Sketch extends PApplet {
 	  randomHoles();
   }
   
-  // define other methods down here.
   /**
    * Randomly spawns holes across the map at the start of each game where the rabbits can appear from
    * 
@@ -55,6 +60,18 @@ public class Sketch extends PApplet {
         // Check if any of the holes are overlapping
       }
     }
+  }
+
+  public void mouseMoved(){
+    background(imgGrass);
+    for (int a = 0; a < 10; a++){
+      image(imgHoles, fltHoleX[a], fltHoleY[a]);
+    }
+    image(imgScope, mouseX - 60, mouseY - 30);
+  }
+
+  public void mousePressed(){
+    image(imgGunShot, mouseX - 60, mouseY - 30);
   }
 
 }
