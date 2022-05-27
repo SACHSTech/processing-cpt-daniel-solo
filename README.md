@@ -15,7 +15,7 @@ The objective of the game is to shoot all the rabbits on the screen and avoid ha
 
 
 # Gameplay mechanics and/or user interaction 
-The user can interact with the game using their gun scope avatar. The gun scope follows wherever the user's mouse is located. When the user presses their mouse, the gun scope will fire a bullet the size of the scope and will kill any rabbits it touches. When the user presses the 'B' key, the area around the gun scope will explode, causing any rabbits to die. Unlike the mouse click-to-fire, the 'B' key cannot be spammed and can only be used once every 5 seconds. A gameplay mechanic is the loading screen which is found at the start of each game once the user dies. The pausing screen can also be activated by clicking a certain button while the game is ongoing.
+The user can interact with the game using their gun scope avatar. The gun scope follows wherever the user's mouse is located. When the user presses their mouse, the gun scope will fire a bullet the size of the scope and will kill any rabbits it touches. When the user presses the 'B' key, the area around the gun scope will explode, causing any rabbits to die. Unlike the mouse click-to-fire, the 'B' key cannot be spammed and can only be used once every 5 seconds. A gameplay mechanic is the loading screen which is found at the start of each game once the user dies. The pausing screen can also be activated by clicking a button at the top right while the game is ongoing.
 
 
 
