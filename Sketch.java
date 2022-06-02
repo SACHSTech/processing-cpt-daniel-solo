@@ -1,22 +1,62 @@
 import processing.core.PApplet;
 import processing.core.PImage;
 
+class Hole {
+  // Attributes
+  float fltX;
+  float fltY;
+
+  // Constructor
+  public Hole(float fltX, float fltY) {
+     this.fltX = fltX;
+     this.fltY = fltY;
+  }
+}
+
+class Rabbit {
+  // Attributes
+  static PImage[] imgRabbit = new PImage[2];
+  Hole hole;
+  int intState;  
+  
+  // Constructor
+  public Rabbit(Hole hole) {
+     this.hole = hole;
+     this.intState = 0;
+  }
+  
+  public void move() {
+    intState++;
+  }
+}
+
 public class Sketch extends PApplet {
+
+  PImage loadImage(String strFileName, int intColumn, int intRow, int intX, int intY){
+    PImage imgSpriteSheet = loadImage(strFileName);
+    int intFrameWidth = imgSpriteSheet.width / intColumn;
+    int intFrameHeight = imgSpriteSheet.height / intRow;
+    PImage imgFrame = imgSpriteSheet.get(intX * intFrameWidth, intY * intFrameHeight, intFrameWidth, intFrameHeight);
+    return imgFrame;
+  }
 	
+  PImage[] imgMoveRabbit = new PImage[4];
+
+
+  float[] fltRabbitY = new float[3];
+  float[] fltRabbitX = new float[3];
+
+  Rabbit rabbitPop;
+
   // Declare image variables
   PImage imgGrass;
   PImage imgHoles;
   PImage imgScope;
   PImage imgGunShot;
-  PImage imgMovingBunnies;
-  PImage[] imgBunnyFrames;
-  PImage imgBunnies;
 
-  // Hole and rabbit spawning variables
-  float[] fltHoleX = new float[10];
-  float[] fltHoleY = new float[10];
-  float[] fltRabbitY = new float[3];
-  float[] fltRabbitX = new float[3];
+
+  // Hole spawning variables
+  Hole[] holes = new Hole[10];
 
   // Variables for loading screen and to only draw once
   boolean isFinish = false;
@@ -24,8 +64,15 @@ public class Sketch extends PApplet {
   boolean isFinish3 = false;
 
   // Bunny animation variables
+  PImage imgMovingBunnies;
   int intBunnyFrames = 4;
   int intBunnyFrameWidth;
+  int intBunnyFrameHeight;
+
+  PImage imgJumpBunnies;
+  int intJumpFrames = 2;
+  int intJumpFramesWidth;
+  int intJumpFramesHeight;
 
   // Variables for map
   int[][] intMap;
@@ -36,9 +83,9 @@ public class Sketch extends PApplet {
   int intLiveRabbits = 0;
 
   // Blocks are seperated into 0, 1, or 2, to tell what is on that block
-  static int intEmpty = 0; 
-  static int intRabbit = 1; 
-  static int intHole = 2; 
+  int intEmpty = 0; 
+  int intRabbit = 1; 
+  int intHole = 2; 
 
   /**
    * Set the size of the call
@@ -59,25 +106,39 @@ public class Sketch extends PApplet {
    * 
    */
   public void setup() {
+    Rabbit.imgRabbit[0] = loadImage("912139339.png", 9, 6, 3, 2);
+    Rabbit.imgRabbit[0].resize(width / 6, height / 6);
+    Rabbit.imgRabbit[1] = loadImage("912139339.png", 9, 6, 3, 1);
+    Rabbit.imgRabbit[1].resize(width / 6, height / 6);
+    imgMoveRabbit[0] = loadImage("bunny-hop-spritesheet.png", 4, 4, 0, 1);
+    imgMoveRabbit[1] = loadImage("bunny-hop-spritesheet.png", 4, 4, 1, 1);
+    imgMoveRabbit[2] = loadImage("bunny-hop-spritesheet.png", 4, 4, 2, 1);
+    imgMoveRabbit[3] = loadImage("bunny-hop-spritesheet.png", 4, 4, 3, 1);
+
     imgGrass = loadImage("istockphoto-951924976-170667a.jpg");
     imgGrass.resize(width, height);
+
     imgHoles = loadImage("soil_PNG43.png");
     imgHoles.resize(width / 9, height / 9);
+
     imgScope = loadImage("Scope_PNG.png");
     imgScope.resize(width / 8, height / 8);
+
     imgGunShot = loadImage("GunShot.png"); 
     imgGunShot.resize(width / 8, height / 8);
+
     imgMovingBunnies = loadImage("bunny-hop-spritesheet.png");
     intBunnyFrameWidth = imgMovingBunnies.width / 4;
-    imgBunnies = imgMovingBunnies.get(0, imgMovingBunnies.height/4,  intBunnyFrameWidth * intBunnyFrames, imgMovingBunnies.height/4);
+    intBunnyFrameHeight = imgMovingBunnies.height / 4;
+
+    imgJumpBunnies = loadImage("bunny-hop-spritesheet.png");
+    intJumpFramesWidth = imgJumpBunnies.width / 9;
+    intJumpFramesHeight = imgJumpBunnies.height / 6;
+    
     intBlockWidth = Math.max(intBunnyFrameWidth, imgHoles.width);
-    intBlockHeight = Math.max(imgBunnies.height, imgHoles.height);
+    intBlockHeight = Math.max(intBunnyFrameHeight, imgHoles.height);
     intMap = new int[600/intBlockWidth][600/intBlockHeight];
-    // Load each frame image onto an index of imgBunnyFrames[]
-    imgBunnyFrames = new PImage[intBunnyFrames];
-    for (int intFrames = 0; intFrames < imgBunnyFrames.length; intFrames++){
-      imgBunnyFrames[intFrames] = imgBunnies.get(intBunnyFrameWidth * intFrames, 0, intBunnyFrameWidth, imgBunnies.height);
-    }
+    randomHoles();
   }
 
   /**
@@ -87,6 +148,7 @@ public class Sketch extends PApplet {
     background(imgGrass);
 	  loadingScreen();
     rabbitMove();
+    rabbitJump();
     showScore();
   }
   
@@ -98,27 +160,26 @@ public class Sketch extends PApplet {
    * 
    */
   public void randomHoles() {
-    if (isFinish == false){
       int i = 0;
-      while(i < fltHoleX.length){
-        fltHoleX[i] = (float)(Math.random() * (600 - imgHoles.width));
-        fltHoleY[i] = (float)(Math.random() * (600 - imgHoles.height));
-        int intBlockX = (int) fltHoleX[i]/intBlockWidth;
-        int intBlockY = (int) fltHoleY[i]/intBlockHeight;
+      while(i < holes.length){
+        holes[i] = new Hole((float)(Math.random() * (600 - imgHoles.width)), (float)(Math.random() * (600 - imgHoles.height)));
+        int intBlockX = (int) holes[i].fltX/intBlockWidth;
+        int intBlockY = (int) holes[i].fltY/intBlockHeight;
         if(intMap[intBlockX][intBlockY]==intEmpty){
           intMap[intBlockX][intBlockY]=intHole;
           i++;
         }
       }
-      isFinish = true;
-    }
-    for (int a = 0; a < fltHoleX.length; a++){
-      image(imgHoles, fltHoleX[a], fltHoleY[a]);
+  }
+
+  public void drawHoles() {
+    for (Hole hole : holes) {
+      image(imgHoles, hole.fltX, hole.fltY);
     }
   }
 
   public void mouseMoved() {
-    if (isFinish2 == true){
+    if (isFinish2 == true) {
       image(imgScope, mouseX - 30, mouseY - 30);
     }
   }
@@ -143,13 +204,31 @@ public class Sketch extends PApplet {
       }
     }
   }
+  
+  public void rabbitJump() {
+    if (isFinish2 == true){
+      drawHoles();
+      if (rabbitPop == null){
+        int intHole = (int)(Math.random() * 10);
+        rabbitPop = new Rabbit(holes[intHole]);
+      }
+      if (rabbitPop.intState==2){
+        rabbitPop = null;
+      }else {
+        image(Rabbit.imgRabbit[rabbitPop.intState], rabbitPop.hole.fltX - 20, rabbitPop.hole.fltY - 60);
+      }
+      if (frameCount%60==0){        
+        rabbitPop.move();
+      }
+    }
+  }
 
   public void rabbitMove() {
     if (isFinish3 ==  false){
       clearRabbits();
       int a = 0;
       while(a < fltRabbitY.length) {
-        fltRabbitY[a] = (float)(Math.random() * (600 - imgBunnies.height));
+        fltRabbitY[a] = (float)(Math.random() * (600 - intBunnyFrameHeight));
         fltRabbitX[a] = 0;
         int intBlockX = (int) fltRabbitX[a]/intBlockWidth;
         int intBlockY = (int) fltRabbitY[a]/intBlockHeight;
@@ -163,7 +242,6 @@ public class Sketch extends PApplet {
       isFinish3 = true;
     }
     if (isFinish2 == true){
-      randomHoles();
       for (int i = 0; i < fltRabbitY.length; i++){ 
         if (isAlive[i]){
           if (mousePressed && isRabbitHit(mouseX, mouseY, i)){
@@ -175,7 +253,7 @@ public class Sketch extends PApplet {
             isFinish3 = false;
             intLiveRabbits--;
           }
-          image(imgBunnyFrames[(frameCount / 5) % intBunnyFrames], fltRabbitX[i], fltRabbitY[i]);
+          image(imgMoveRabbit[(frameCount / 5) % intBunnyFrames], fltRabbitX[i], fltRabbitY[i]);
           fltRabbitX[i]++;
         }
       }
@@ -191,7 +269,7 @@ public class Sketch extends PApplet {
 
   public boolean isRabbitHit(float fltX, float fltY, int intNum) {
     if (fltX >= fltRabbitX[intNum] && fltX <= fltRabbitX[intNum] + intBunnyFrameWidth){
-      if (fltY >= fltRabbitY[intNum] && fltY <= fltRabbitY[intNum] + imgBunnies.height){
+      if (fltY >= fltRabbitY[intNum] && fltY <= fltRabbitY[intNum] + intBunnyFrameHeight){
         return true;
       }
     }
@@ -211,5 +289,7 @@ public class Sketch extends PApplet {
       }
     }
   }
+
+
 
 }
