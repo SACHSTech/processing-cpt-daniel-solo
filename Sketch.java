@@ -15,18 +15,39 @@ class Hole {
 
 class Rabbit {
   // Attributes
+  static int intDead = 2; 
   static PImage[] imgRabbit = new PImage[2];
   Hole hole;
-  int intState;  
+  int intState;
+  int intDeadCount;
   
   // Constructor
   public Rabbit(Hole hole) {
      this.hole = hole;
      this.intState = 0;
   }
+
+  public float getX() {
+    return hole.fltX + 15;
+  }
+
+  public float getY() {
+    return hole.fltY - 15;
+  }  
   
+  public void killed(int intFrameCount) {
+    intState = intDead;
+    intDeadCount = intFrameCount;    
+  }
+
+  public boolean isAlive() {
+    return intState < intDead;
+  }
+
   public void move() {
-    intState++;
+    if (isAlive() == true){
+      intState++;
+    }
   }
 }
 
@@ -78,8 +99,7 @@ public class Sketch extends PApplet {
   int[][] intMap;
   int intBlockWidth;
   int intBlockHeight;
-  boolean[] isAlive = new boolean[3];
-  boolean isAlive2 = false; 
+  boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
   int intLiveRabbits = 0;
 
@@ -133,8 +153,8 @@ public class Sketch extends PApplet {
     intBunnyFrameHeight = imgMovingBunnies.height / 4;
 
     imgJumpBunnies = loadImage("bunny-hop-spritesheet.png");
-    intJumpFramesWidth = imgJumpBunnies.width / 9;
-    intJumpFramesHeight = imgJumpBunnies.height / 6;
+    intJumpFramesWidth = imgJumpBunnies.width / 9 + 5;
+    intJumpFramesHeight = imgJumpBunnies.height / 6 + 20;
     
     intBlockWidth = Math.max(intBunnyFrameWidth, imgHoles.width);
     intBlockHeight = Math.max(intBunnyFrameHeight, imgHoles.height);
@@ -209,15 +229,11 @@ public class Sketch extends PApplet {
   public void rabbitJump() {
     if (isFinish2 == true){
       drawHoles();   
-      if (isAlive2 == false){
+      if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount+30)){
         int intHole = (int)(Math.random() * 10);
         rabbitPop = new Rabbit(holes[intHole]);
-        isAlive2 = true;
       }
-      if (rabbitPop.intState == 2){
-        isAlive2 = false;
-      }
-      else {
+      if (rabbitPop.isAlive()){
         image(Rabbit.imgRabbit[rabbitPop.intState], rabbitPop.hole.fltX - 20, rabbitPop.hole.fltY - 60);
       }
       if (frameCount % 60 == 0){        
@@ -227,9 +243,9 @@ public class Sketch extends PApplet {
       if (mousePressed == true){
         image(imgGunShot, mouseX - 30, mouseY - 30);
       }
-      if (isAlive2){
+      if (rabbitPop.isAlive()){
         if (mousePressed && isRabbitHit2(mouseX, mouseY)){
-          isAlive2 = false;
+          rabbitPop.killed(frameCount);
           intScore++;
         }
       } 
@@ -290,9 +306,9 @@ public class Sketch extends PApplet {
   }
 
   public boolean isRabbitHit2(float fltX2, float fltY2) {
-    rect( rabbitPop.hole.fltX+15, rabbitPop.hole.fltY-15, intJumpFramesWidth+5, intJumpFramesHeight+20);
-    if (fltX2 >= rabbitPop.hole.fltX +15  && fltX2 <= rabbitPop.hole.fltX + intJumpFramesWidth+10){
-      if (fltY2 >= rabbitPop.hole.fltY-15 && fltY2 <= rabbitPop.hole.fltY + intJumpFramesHeight+5){
+    rect( rabbitPop.getX(), rabbitPop.getY(), intJumpFramesWidth, intJumpFramesHeight);
+    if (fltX2 >= rabbitPop.getX()  && fltX2 <= rabbitPop.getX() + intJumpFramesWidth){
+      if (fltY2 >= rabbitPop.getY() && fltY2 <= rabbitPop.getY() + intJumpFramesHeight){
         return true;
       }
     }
