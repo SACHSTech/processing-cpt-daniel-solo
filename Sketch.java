@@ -74,13 +74,13 @@ public class Sketch extends PApplet {
   PImage imgHoles;
   PImage imgScope;
   PImage imgGunShot;
+  PImage imgRabbitShadow;
 
 
   // Hole spawning variables
   Hole[] holes = new Hole[10];
 
   // Variables for loading screen and to only draw once
-  boolean isFinish = false;
   boolean isFinish2 = false;
   boolean isFinish3 = false;
 
@@ -102,6 +102,7 @@ public class Sketch extends PApplet {
   boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
   int intLiveRabbits = 0;
+  int intLives = 5;
 
   // Blocks are seperated into 0, 1, or 2, to tell what is on that block
   int intEmpty = 0; 
@@ -148,6 +149,9 @@ public class Sketch extends PApplet {
     imgGunShot = loadImage("GunShot.png"); 
     imgGunShot.resize(width / 8, height / 8);
 
+    imgRabbitShadow = loadImage("rabbitshadow1.png");
+    imgRabbitShadow.resize(width / 8, height / 8);
+
     imgMovingBunnies = loadImage("bunny-hop-spritesheet.png");
     intBunnyFrameWidth = imgMovingBunnies.width / 4;
     intBunnyFrameHeight = imgMovingBunnies.height / 4;
@@ -171,6 +175,7 @@ public class Sketch extends PApplet {
     rabbitMove();
     rabbitJump();
     showScore();
+    drawLives();
   }
   
   /**
@@ -229,7 +234,7 @@ public class Sketch extends PApplet {
   public void rabbitJump() {
     if (isFinish2 == true){
       drawHoles();   
-      if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount+30)){
+      if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount + 30)){
         int intHole = (int)(Math.random() * 10);
         rabbitPop = new Rabbit(holes[intHole]);
       }
@@ -328,6 +333,19 @@ public class Sketch extends PApplet {
         intMap[0][i] = intEmpty;
       }
     }
+  }
+
+  public void drawLives() {
+    int intAddX = 0;
+    if (intLives == 0){
+      isFinish2 = false;
+    }
+    if (isFinish2 == true){
+      for (int i = 0; i < intLives; i++){
+          rect(intAddX, 0, 30, 30);
+          intAddX = intAddX + 35;
+      }  
+    } 
   }
 
 
