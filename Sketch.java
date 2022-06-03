@@ -79,6 +79,7 @@ public class Sketch extends PApplet {
   int intBlockWidth;
   int intBlockHeight;
   boolean[] isAlive = new boolean[3];
+  boolean isAlive2 = false; 
   int intScore = 0;
   int intLiveRabbits = 0;
 
@@ -161,12 +162,12 @@ public class Sketch extends PApplet {
    */
   public void randomHoles() {
       int i = 0;
-      while(i < holes.length){
+      while (i < holes.length){
         holes[i] = new Hole((float)(Math.random() * (600 - imgHoles.width)), (float)(Math.random() * (600 - imgHoles.height)));
-        int intBlockX = (int) holes[i].fltX/intBlockWidth;
-        int intBlockY = (int) holes[i].fltY/intBlockHeight;
-        if(intMap[intBlockX][intBlockY]==intEmpty){
-          intMap[intBlockX][intBlockY]=intHole;
+        int intBlockX = (int) holes[i].fltX / intBlockWidth;
+        int intBlockY = (int) holes[i].fltY / intBlockHeight;
+        if (intMap[intBlockX][intBlockY] == intEmpty){
+          intMap[intBlockX][intBlockY] = intHole;
           i++;
         }
       }
@@ -207,19 +208,31 @@ public class Sketch extends PApplet {
   
   public void rabbitJump() {
     if (isFinish2 == true){
-      drawHoles();
-      if (rabbitPop == null){
+      drawHoles();   
+      if (isAlive2 == false){
         int intHole = (int)(Math.random() * 10);
         rabbitPop = new Rabbit(holes[intHole]);
+        isAlive2 = true;
       }
-      if (rabbitPop.intState==2){
-        rabbitPop = null;
-      }else {
+      if (rabbitPop.intState == 2){
+        isAlive2 = false;
+      }
+      else {
         image(Rabbit.imgRabbit[rabbitPop.intState], rabbitPop.hole.fltX - 20, rabbitPop.hole.fltY - 60);
       }
-      if (frameCount%60==0){        
+      if (frameCount % 60 == 0){        
         rabbitPop.move();
       }
+      image(imgScope, mouseX - 30, mouseY - 30);
+      if (mousePressed == true){
+        image(imgGunShot, mouseX - 30, mouseY - 30);
+      }
+      if (isAlive2){
+        if (mousePressed && isRabbitHit2(mouseX, mouseY)){
+          isAlive2 = false;
+          intScore++;
+        }
+      } 
     }
   }
 
@@ -227,13 +240,13 @@ public class Sketch extends PApplet {
     if (isFinish3 ==  false){
       clearRabbits();
       int a = 0;
-      while(a < fltRabbitY.length) {
+      while (a < fltRabbitY.length) {
         fltRabbitY[a] = (float)(Math.random() * (600 - intBunnyFrameHeight));
         fltRabbitX[a] = 0;
-        int intBlockX = (int) fltRabbitX[a]/intBlockWidth;
-        int intBlockY = (int) fltRabbitY[a]/intBlockHeight;
-        if(intMap[intBlockX][intBlockY]==intEmpty){
-          intMap[intBlockX][intBlockY]=intRabbit;
+        int intBlockX = (int) fltRabbitX[a] / intBlockWidth;
+        int intBlockY = (int) fltRabbitY[a] / intBlockHeight;
+        if (intMap[intBlockX][intBlockY] == intEmpty){
+          intMap[intBlockX][intBlockY] = intRabbit;
           isAlive[a] = true;
           intLiveRabbits++;
           a++;
@@ -275,6 +288,17 @@ public class Sketch extends PApplet {
     }
     return false;
   }
+
+  public boolean isRabbitHit2(float fltX2, float fltY2) {
+    rect( rabbitPop.hole.fltX+15, rabbitPop.hole.fltY-15, intJumpFramesWidth+5, intJumpFramesHeight+20);
+    if (fltX2 >= rabbitPop.hole.fltX +15  && fltX2 <= rabbitPop.hole.fltX + intJumpFramesWidth+10){
+      if (fltY2 >= rabbitPop.hole.fltY-15 && fltY2 <= rabbitPop.hole.fltY + intJumpFramesHeight+5){
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   public void showScore() {
     fill(255);
