@@ -99,18 +99,10 @@ public class Sketch extends PApplet {
   int intJumpFramesHeight;
 
   // Variables for map
-  int[][] intMap;
-  int intBlockWidth;
-  int intBlockHeight;
   boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
   int intLiveRabbits = 0;
   static int intLives = 5;
-
-  // Blocks are seperated into 0, 1, or 2, to tell what is on that block
-  int intEmpty = 0; 
-  int intRabbit = 1; 
-  int intHole = 2; 
 
   /**
    * Set the size of the call
@@ -161,11 +153,7 @@ public class Sketch extends PApplet {
 
     imgJumpBunnies = loadImage("bunny-hop-spritesheet.png");
     intJumpFramesWidth = imgJumpBunnies.width / 9 + 5;
-    intJumpFramesHeight = imgJumpBunnies.height / 6 + 20;
-    
-    intBlockWidth = Math.max(intBunnyFrameWidth, imgHoles.width);
-    intBlockHeight = Math.max(intBunnyFrameHeight, imgHoles.height);
-    intMap = new int[600/intBlockWidth][600/intBlockHeight];
+    intJumpFramesHeight = imgJumpBunnies.height / 6 + 20;    
   }
 
   /**
@@ -191,13 +179,38 @@ public class Sketch extends PApplet {
       int i = 0;
       while (i < holes.length){
         holes[i] = new Hole((float)(Math.random() * (600 - imgHoles.width)), (float)(Math.random() * (600 - imgHoles.height)));
-        int intBlockX = (int) holes[i].fltX / intBlockWidth;
-        int intBlockY = (int) holes[i].fltY / intBlockHeight;
-        if (intMap[intBlockX][intBlockY] == intEmpty){
-          intMap[intBlockX][intBlockY] = intHole;
-          i++;
+        for(int j=0; j<i; j++){
+           if(isHoleOverlap(holes[j], holes[i].fltX, holes[i].fltY)){
+              i--;
+              break;
+           }
         }
+        i++;
       }
+  }
+
+  public boolean isHoleOverlap(Hole hole, float x, float y) {
+    if (x >= hole.fltX && x <= hole.fltX + imgHoles.width){
+      if (y >= hole.fltY && y <= hole.fltY + imgHoles.height){
+        return true;
+      }
+    }
+    if (x + imgHoles.width >= hole.fltX && x + imgHoles.width <= hole.fltX + imgHoles.width){
+      if (y >= hole.fltY && y <= hole.fltY + imgHoles.height){
+        return true;
+      }
+    }
+    if (x >= hole.fltX && x <= hole.fltX + imgHoles.width){
+      if (y + imgHoles.height >= hole.fltY && y + imgHoles.height <= hole.fltY + imgHoles.height){
+        return true;
+      }
+    }
+    if (x + imgHoles.width >= hole.fltX && x + imgHoles.width <= hole.fltX + imgHoles.width){
+      if (y  + imgHoles.height >= hole.fltY && y + imgHoles.height <= hole.fltY + imgHoles.height){
+        return true;
+      }
+    }
+    return false;
   }
 
   public void drawHoles() {
@@ -263,19 +276,13 @@ public class Sketch extends PApplet {
 
   public void rabbitMove() {
     if (isRabbitsRunning ==  false){
-      clearRabbits();
       int a = 0;
       while (a < fltRabbitY.length) {
         fltRabbitY[a] = (float)(Math.random() * (600 - intBunnyFrameHeight));
         fltRabbitX[a] = 0;
-        int intBlockX = (int) fltRabbitX[a] / intBlockWidth;
-        int intBlockY = (int) fltRabbitY[a] / intBlockHeight;
-        if (intMap[intBlockX][intBlockY] == intEmpty){
-          intMap[intBlockX][intBlockY] = intRabbit;
-          isAlive[a] = true;
-          intLiveRabbits++;
-          a++;
-        }
+        isAlive[a] = true;
+        intLiveRabbits++;
+        a++;
       } 
       isRabbitsRunning = true;
     }
@@ -333,19 +340,15 @@ public class Sketch extends PApplet {
   }
 
   public void clearRabbits() {
-    for (int i = 0; i < intMap[0].length; i++){
-      if (intMap[0][i] == intRabbit){
-        intMap[0][i] = intEmpty;
-      }
-    }
+    isFinish2 = false;
+    rabbitPop = null;
+    isRabbitsRunning = false;
   }
 
   public void drawLives() {
     int intAddX = 0;
     if (intLives <= 0){
-      isFinish2 = false;
-      rabbitPop = null;
-      isRabbitsRunning = false;
+      clearRabbits();
     }
     if (isFinish2 == true){
       for (int i = 0; i < intLives; i++){
