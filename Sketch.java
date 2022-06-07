@@ -47,6 +47,9 @@ class Rabbit {
   public void move() {
     if (isAlive() == true){
       intState++;
+      if (intState == 2){
+        Sketch.intLives--;
+      }
     }
   }
 }
@@ -82,7 +85,7 @@ public class Sketch extends PApplet {
 
   // Variables for loading screen and to only draw once
   boolean isFinish2 = false;
-  boolean isFinish3 = false;
+  boolean isRabbitsRunning = false;
 
   // Bunny animation variables
   PImage imgMovingBunnies;
@@ -102,7 +105,7 @@ public class Sketch extends PApplet {
   boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
   int intLiveRabbits = 0;
-  int intLives = 5;
+  static int intLives = 5;
 
   // Blocks are seperated into 0, 1, or 2, to tell what is on that block
   int intEmpty = 0; 
@@ -163,7 +166,6 @@ public class Sketch extends PApplet {
     intBlockWidth = Math.max(intBunnyFrameWidth, imgHoles.width);
     intBlockHeight = Math.max(intBunnyFrameHeight, imgHoles.height);
     intMap = new int[600/intBlockWidth][600/intBlockHeight];
-    randomHoles();
   }
 
   /**
@@ -220,10 +222,12 @@ public class Sketch extends PApplet {
       fill(0, 408, 612);
       text("Start", 265, 410);
       text("RABBIT SHOOTER GAME", 140, 200);
+      intLives = 5;
       
       if (mousePressed){
         if (mouseX > 250 && mouseX < 350){
           if (mouseY > 350 && mouseY < 450){
+            randomHoles();
             isFinish2 = true;
           }
         }
@@ -233,8 +237,8 @@ public class Sketch extends PApplet {
   
   public void rabbitJump() {
     if (isFinish2 == true){
-      drawHoles();   
-      if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount + 30)){
+      drawHoles();
+      if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount + 60)){
         int intHole = (int)(Math.random() * 10);
         rabbitPop = new Rabbit(holes[intHole]);
       }
@@ -252,13 +256,13 @@ public class Sketch extends PApplet {
         if (mousePressed && isRabbitHit2(mouseX, mouseY)){
           rabbitPop.killed(frameCount);
           intScore++;
-        }
+        }  
       } 
     }
   }
 
   public void rabbitMove() {
-    if (isFinish3 ==  false){
+    if (isRabbitsRunning ==  false){
       clearRabbits();
       int a = 0;
       while (a < fltRabbitY.length) {
@@ -273,7 +277,7 @@ public class Sketch extends PApplet {
           a++;
         }
       } 
-      isFinish3 = true;
+      isRabbitsRunning = true;
     }
     if (isFinish2 == true){
       for (int i = 0; i < fltRabbitY.length; i++){ 
@@ -284,15 +288,16 @@ public class Sketch extends PApplet {
             intLiveRabbits--;
           }
           if (fltRabbitX[i] >= 600){
-            isFinish3 = false;
+            isRabbitsRunning = false;
             intLiveRabbits--;
+            intLives--;
           }
           image(imgMoveRabbit[(frameCount / 5) % intBunnyFrames], fltRabbitX[i], fltRabbitY[i]);
           fltRabbitX[i]++;
         }
       }
       if (intLiveRabbits <= 0){
-        isFinish3 = false;
+        isRabbitsRunning = false;
       }
       image(imgScope, mouseX - 30, mouseY - 30);
       if (mousePressed == true){
@@ -337,8 +342,10 @@ public class Sketch extends PApplet {
 
   public void drawLives() {
     int intAddX = 0;
-    if (intLives == 0){
+    if (intLives <= 0){
       isFinish2 = false;
+      rabbitPop = null;
+      isRabbitsRunning = false;
     }
     if (isFinish2 == true){
       for (int i = 0; i < intLives; i++){
