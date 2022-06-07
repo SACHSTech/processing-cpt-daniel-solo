@@ -86,6 +86,7 @@ public class Sketch extends PApplet {
   // Variables for loading screen and to only draw once
   boolean isFinish2 = false;
   boolean isRabbitsRunning = false;
+  boolean isPaused = false;
 
   // Bunny animation variables
   PImage imgMovingBunnies;
@@ -161,6 +162,7 @@ public class Sketch extends PApplet {
    */
   public void draw() {
     background(imgGrass);
+    pauseScreen();
 	  loadingScreen();
     rabbitMove();
     rabbitJump();
@@ -232,11 +234,48 @@ public class Sketch extends PApplet {
   }
 
   public void mouseMoved() {
-    if (isFinish2 == true) {
+    if (isFinish2 == true && isPaused == false) {
       image(imgScope, mouseX - 30, mouseY - 30);
     }
   }
 
+  public void pauseScreen() { 
+    if (keyPressed && isFinish2 == true){
+      if (key == TAB){
+        isPaused = true;
+        background(0);
+        fill(134);
+        rect(200, 350, 200, 100);
+        fill(255);
+        textSize(20);
+        text("Click to resume", 220, 410);
+        textSize(40);
+        text("Pause Screen", 175, 200);
+      }
+    }
+    keyReleased();
+    
+    if (mousePressed){
+      if (mouseX > 200 && mouseX < 400){
+        if (mouseY > 350 && mouseY < 450){
+          isPaused = false;
+        }
+      }
+    }
+  }
+
+  public void keyReleased() {
+    if (key == TAB && isFinish2 == true && isPaused == true){
+      background(0);
+      fill(134);
+      rect(200, 350, 200, 100);
+      fill(255);
+      textSize(20);
+      text("Click to resume", 220, 410);
+      textSize(40);
+      text("Pause Screen", 175, 200);
+    }
+  }
 
   public void loadingScreen() {
     if (isFinish2 == false){
@@ -261,7 +300,7 @@ public class Sketch extends PApplet {
   }
   
   public void rabbitJump() {
-    if (isFinish2 == true){
+    if (isFinish2 == true && isPaused == false){
       drawHoles();
       if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount + 60)){
         int intHole = (int)(Math.random() * 10);
@@ -300,7 +339,7 @@ public class Sketch extends PApplet {
       } 
       isRabbitsRunning = true;
     }
-    if (isFinish2 == true){
+    if (isFinish2 == true && isPaused == false){
       for (int i = 0; i < fltRabbitY.length; i++){ 
         if (isAlive[i]){
           if (mousePressed && isRabbitHit(mouseX, mouseY, i)){
@@ -354,6 +393,7 @@ public class Sketch extends PApplet {
   }
 
   public void clearRabbits() {
+    isPaused = false;
     isFinish2 = false;
     rabbitPop = null;
     intLiveRabbits = 0;
@@ -366,7 +406,7 @@ public class Sketch extends PApplet {
       clearRabbits();
       intScore = 0;
     }
-    if (isFinish2 == true){
+    if (isFinish2 == true && isPaused == false){
       for (int i = 0; i < intLives; i++){
           rect(intAddX, 0, 30, 30);
           intAddX = intAddX + 35;
