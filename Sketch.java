@@ -179,8 +179,8 @@ public class Sketch extends PApplet {
       int i = 0;
       while (i < holes.length){
         holes[i] = new Hole((float)(Math.random() * (600 - imgHoles.width)), (float)(Math.random() * (600 - imgHoles.height)));
-        for(int j=0; j<i; j++){
-           if(isHoleOverlap(holes[j], holes[i].fltX, holes[i].fltY)){
+        for (int j = 0; j < i; j++){
+           if (isHoleOverlap(holes[j], holes[i].fltX, holes[i].fltY)){
               i--;
               break;
            }
@@ -210,6 +210,18 @@ public class Sketch extends PApplet {
         return true;
       }
     }
+    return false;
+  }
+
+  public boolean isRabbitOverlap(int i) {
+    for (int j = 0; i > j; j++){
+        if (fltRabbitY[i] >= fltRabbitY[j] && fltRabbitY[i] <= fltRabbitY[j] + intBunnyFrameHeight){
+          return true;
+        }
+        if (fltRabbitY[j] >= fltRabbitY[i] && fltRabbitY[j] <= fltRabbitY[i] + intBunnyFrameHeight){
+          return true;
+        }
+      }
     return false;
   }
 
@@ -279,10 +291,12 @@ public class Sketch extends PApplet {
       int a = 0;
       while (a < fltRabbitY.length) {
         fltRabbitY[a] = (float)(Math.random() * (600 - intBunnyFrameHeight));
-        fltRabbitX[a] = 0;
-        isAlive[a] = true;
-        intLiveRabbits++;
-        a++;
+          if (!isRabbitOverlap(a)){
+            fltRabbitX[a] = 0;
+            isAlive[a] = true;
+            intLiveRabbits++;            
+            a++;
+          }
       } 
       isRabbitsRunning = true;
     }
@@ -342,6 +356,7 @@ public class Sketch extends PApplet {
   public void clearRabbits() {
     isFinish2 = false;
     rabbitPop = null;
+    intLiveRabbits = 0;
     isRabbitsRunning = false;
   }
 
@@ -349,6 +364,7 @@ public class Sketch extends PApplet {
     int intAddX = 0;
     if (intLives <= 0){
       clearRabbits();
+      intScore = 0;
     }
     if (isFinish2 == true){
       for (int i = 0; i < intLives; i++){
