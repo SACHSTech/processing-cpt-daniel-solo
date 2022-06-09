@@ -56,6 +56,17 @@ class Rabbit {
 
 public class Sketch extends PApplet {
 
+  /**
+   * Set the size of the call
+   * 
+   * @param strFileName The name of stritesheet image 
+   * @param intColumn   The number of columns that spritesheet can be broken into
+   * @param intRow      The number of rows that spritesheet can be broken into
+   * @param intX        The column number
+   * @param intY        The row number
+   * @return            The desired image from the spritesheet 
+   * 
+   */
   PImage loadImage(String strFileName, int intColumn, int intRow, int intX, int intY){
     PImage imgSpriteSheet = loadImage(strFileName);
     int intFrameWidth = imgSpriteSheet.width / intColumn;
@@ -99,7 +110,7 @@ public class Sketch extends PApplet {
   int intJumpFramesWidth;
   int intJumpFramesHeight;
 
-  // Variables for map
+  // Counter variables
   boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
   int intLiveRabbits = 0;
@@ -158,7 +169,11 @@ public class Sketch extends PApplet {
   }
 
   /**
-   * Called repeatedly, anything drawn to the screen goes here
+   * Runs everything inside 60 times a second
+   * 
+   * @param nothing
+   * @return nothing
+   * 
    */
   public void draw() {
     background(imgGrass);
@@ -190,7 +205,16 @@ public class Sketch extends PApplet {
         i++;
       }
   }
-
+  
+  /**
+   * Checks if the holes are overlapping
+   * 
+   * @param hole  The first hole that has already been drawn
+   * @param x     The x coordinate of second hole
+   * @param y     The y coordinate of second hole
+   * @return      true or false (If overlap)
+   * 
+   */
   public boolean isHoleOverlap(Hole hole, float x, float y) {
     if (x >= hole.fltX && x <= hole.fltX + imgHoles.width){
       if (y >= hole.fltY && y <= hole.fltY + imgHoles.height){
@@ -215,8 +239,15 @@ public class Sketch extends PApplet {
     return false;
   }
 
+  /**
+   * Checks if the holes are overlapping
+   * 
+   * @param i     Index value of the second rabbit 
+   * @return      true or false (If overlap)
+   * 
+   */
   public boolean isRabbitOverlap(int i) {
-    for (int j = 0; i > j; j++){
+    for (int j = 0; j < i; j++){
         if (fltRabbitY[i] >= fltRabbitY[j] && fltRabbitY[i] <= fltRabbitY[j] + intBunnyFrameHeight){
           return true;
         }
@@ -227,18 +258,39 @@ public class Sketch extends PApplet {
     return false;
   }
 
+  /**
+   * Draws the holes on their randomized locations
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void drawHoles() {
     for (Hole hole : holes) {
       image(imgHoles, hole.fltX, hole.fltY);
     }
   }
 
+  /**
+   * Draws a scope if the mouse is moved
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void mouseMoved() {
     if (isFinish2 == true && isPaused == false) {
       image(imgScope, mouseX - 30, mouseY - 30);
     }
   }
 
+  /**
+   * Pauses the screen if user presses TAB
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void pauseScreen() { 
     if (keyPressed && isFinish2 == true){
       if (key == TAB){
@@ -264,6 +316,13 @@ public class Sketch extends PApplet {
     }
   }
 
+  /**
+   * Draws the pause screen even when TAB is released
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void keyReleased() {
     if (key == TAB && isFinish2 == true && isPaused == true){
       background(0);
@@ -277,6 +336,13 @@ public class Sketch extends PApplet {
     }
   }
 
+  /**
+   * Draws the initial loading screen
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void loadingScreen() {
     if (isFinish2 == false){
       background(0);
@@ -299,6 +365,13 @@ public class Sketch extends PApplet {
     }
   }
   
+  /**
+   * Draws the rabbits that pop out of the holes
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void rabbitJump() {
     if (isFinish2 == true && isPaused == false){
       drawHoles();
@@ -325,6 +398,13 @@ public class Sketch extends PApplet {
     }
   }
 
+  /**
+   * Draws the horizontally moving rabbits
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void rabbitMove() {
     if (isRabbitsRunning ==  false){
       int a = 0;
@@ -366,6 +446,15 @@ public class Sketch extends PApplet {
     }
   }
 
+  /**
+   * Checks to see if horizontally moving rabbits are hit
+   * 
+   * @param fltX    The X location of the user's mouse
+   * @param fltY    The Y location of the user's mouse
+   * @param intNum  The index number of the rabbit
+   * @return        true or false (Hit or not)
+   * 
+   */
   public boolean isRabbitHit(float fltX, float fltY, int intNum) {
     if (fltX >= fltRabbitX[intNum] && fltX <= fltRabbitX[intNum] + intBunnyFrameWidth){
       if (fltY >= fltRabbitY[intNum] && fltY <= fltRabbitY[intNum] + intBunnyFrameHeight){
@@ -375,6 +464,14 @@ public class Sketch extends PApplet {
     return false;
   }
 
+  /**
+   * Checks to see if jumping rabbits are hit
+   * 
+   * @param fltX2    The X location of the user's mouse
+   * @param fltY2    The Y location of the user's mouse
+   * @return         true or false (Hit or not)
+   * 
+   */
   public boolean isRabbitHit2(float fltX2, float fltY2) {
     rect( rabbitPop.getX(), rabbitPop.getY(), intJumpFramesWidth, intJumpFramesHeight);
     if (fltX2 >= rabbitPop.getX()  && fltX2 <= rabbitPop.getX() + intJumpFramesWidth){
@@ -385,13 +482,26 @@ public class Sketch extends PApplet {
     return false;
   }
 
-
+  /**
+   * Displays the user's score on the screen
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void showScore() {
     fill(255);
     textSize(15);
     text("Score: " + intScore, 525, 50);
   }
 
+  /**
+   * Resets values once lives reaches 0
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void clearRabbits() {
     isPaused = false;
     isFinish2 = false;
@@ -400,6 +510,13 @@ public class Sketch extends PApplet {
     isRabbitsRunning = false;
   }
 
+  /**
+   * Draws the number of lives the user has
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void drawLives() {
     int intAddX = 0;
     if (intLives <= 0){
@@ -413,7 +530,5 @@ public class Sketch extends PApplet {
       }  
     } 
   }
-
-
 
 }
