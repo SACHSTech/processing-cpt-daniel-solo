@@ -113,6 +113,7 @@ public class Sketch extends PApplet {
   // Counter variables
   boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
+  int intFinalScore = 0;
   int intLiveRabbits = 0;
   static int intLives = 5;
 
@@ -353,6 +354,9 @@ public class Sketch extends PApplet {
       text("Start", 265, 410);
       text("RABBIT SHOOTER GAME", 140, 200);
       intLives = 5;
+      fill(255);
+      textSize(20);
+      text("High score: " + intFinalScore, 30, 40);
       
       if (mousePressed){
         if (mouseX > 250 && mouseX < 350){
@@ -393,6 +397,7 @@ public class Sketch extends PApplet {
         if (mousePressed && isRabbitHit2(mouseX, mouseY)){
           rabbitPop.killed(frameCount);
           intScore++;
+          intFinalScore = intScore;
         }  
       } 
     }
@@ -425,6 +430,7 @@ public class Sketch extends PApplet {
           if (mousePressed && isRabbitHit(mouseX, mouseY, i)){
             isAlive[i] = false;
             intScore++;
+            intFinalScore = intScore;
             intLiveRabbits--;
           }
           if (fltRabbitX[i] >= 600){
@@ -490,9 +496,11 @@ public class Sketch extends PApplet {
    * 
    */
   public void showScore() {
-    fill(255);
-    textSize(15);
-    text("Score: " + intScore, 525, 50);
+    if (isFinish2 == true){
+      fill(255);
+      textSize(15);
+      text("Score: " + intScore, 525, 50);
+    }
   }
 
   /**
@@ -529,6 +537,10 @@ public class Sketch extends PApplet {
           intAddX = intAddX + 35;
       }  
     } 
+  }
+
+  public void speedIncrease() {
+    
   }
 
 }
