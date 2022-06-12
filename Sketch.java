@@ -550,11 +550,11 @@ public class Sketch extends PApplet {
   }
 
   public int popSpeed() {
-    return Math.max(30, 120 - 30*(intScore/10)); 
+    return Math.max(30, 120 - 15*(intScore/10)); 
   }
 
   public float runSpeed() {
-    return Math.min((float)2.5, 1 + (float)(0.5*(intScore/10))); 
+    return Math.min((float)2.5, 1 + (float)(0.25*(intScore/10))); 
   }
 
 }
