@@ -19,12 +19,14 @@ class Rabbit {
   static PImage[] imgRabbit = new PImage[2];
   Hole hole;
   int intState;
+  int intSpawnCount;
   int intDeadCount;
   
   // Constructor
-  public Rabbit(Hole hole) {
+  public Rabbit(Hole hole, int intFrameCount) {
      this.hole = hole;
      this.intState = 0;
+     this.intSpawnCount = intFrameCount;
   }
 
   public float getX() {
@@ -115,7 +117,6 @@ public class Sketch extends PApplet {
   boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
   int intHighScore = 0;
-  int intScoreCompare;
   int intLiveRabbits = 0;
   static int intLives = 5;
 
@@ -163,7 +164,7 @@ public class Sketch extends PApplet {
     imgRabbitShadow.resize(width / 8, height / 8);
 
     imgHeart = loadImage("heart-png-15.png");
-    imgHeart.resize(width / 18, height / 18);
+    imgHeart.resize(width / 36, height / 36);
 
     imgMovingBunnies = loadImage("bunny-hop-spritesheet.png");
     intBunnyFrameWidth = imgMovingBunnies.width / 4;
@@ -359,9 +360,6 @@ public class Sketch extends PApplet {
       text("Start", 265, 410);
       text("RABBIT SHOOTER GAME", 140, 200);
       intLives = 5;
-      if (intHighScore < intScoreCompare){
-        intHighScore = intScoreCompare;
-      }
       fill(255);
       textSize(20);
       text("High score: " + intHighScore, 30, 40);
@@ -389,12 +387,12 @@ public class Sketch extends PApplet {
       drawHoles();
       if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount + 60)){
         int intHole = (int)(Math.random() * 10);
-        rabbitPop = new Rabbit(holes[intHole]);
+        rabbitPop = new Rabbit(holes[intHole], frameCount);
       }
       if (rabbitPop.isAlive()){
         image(Rabbit.imgRabbit[rabbitPop.intState], rabbitPop.hole.fltX - 20, rabbitPop.hole.fltY - 60);
       }
-      if (frameCount % 75 == 0){        
+      if ((frameCount - rabbitPop.intSpawnCount + 1) % popSpeed() == 0){        
         rabbitPop.move();
       }
       image(imgScope, mouseX - 30, mouseY - 30);
@@ -405,7 +403,7 @@ public class Sketch extends PApplet {
         if (mousePressed && isRabbitHit2(mouseX, mouseY)){
           rabbitPop.killed(frameCount);
           intScore++;
-          intScoreCompare = intScore;
+          intHighScore = Math.max(intHighScore, intScore);
         }  
       } 
     }
@@ -438,7 +436,7 @@ public class Sketch extends PApplet {
           if (mousePressed && isRabbitHit(mouseX, mouseY, i)){
             isAlive[i] = false;
             intScore++;
-            intScoreCompare = intScore;
+            intHighScore = Math.max(intHighScore, intScore);
             intLiveRabbits--;
           }
           if (isAlive[i] && fltRabbitX[i] >= 600){
@@ -450,7 +448,7 @@ public class Sketch extends PApplet {
             }
           }
           image(imgMoveRabbit[(frameCount / 5) % intBunnyFrames], fltRabbitX[i], fltRabbitY[i]);
-          fltRabbitX[i]++;
+          fltRabbitX[i]+=runSpeed();
         }
       }
       if (intLiveRabbits <= 0){
@@ -490,9 +488,9 @@ public class Sketch extends PApplet {
    * 
    */
   public boolean isRabbitHit2(float fltX2, float fltY2) {
-    rect( rabbitPop.getX(), rabbitPop.getY(), intJumpFramesWidth, intJumpFramesHeight);
-    if (fltX2 >= rabbitPop.getX()  && fltX2 <= rabbitPop.getX() + intJumpFramesWidth){
-      if (fltY2 >= rabbitPop.getY() && fltY2 <= rabbitPop.getY() + intJumpFramesHeight){
+    rect( rabbitPop.getX() - 5, rabbitPop.getY() - 5 , intJumpFramesWidth + 10, intJumpFramesHeight + 10);
+    if (fltX2 >= rabbitPop.getX() - 5  && fltX2 <= rabbitPop.getX() + intJumpFramesWidth + 5){
+      if (fltY2 >= rabbitPop.getY() - 5 && fltY2 <= rabbitPop.getY() + intJumpFramesHeight + 5){
         return true;
       }
     }
@@ -510,7 +508,8 @@ public class Sketch extends PApplet {
     if (isFinish2 == true){
       fill(255,255,0);
       textSize(15);
-      text("Score: " + intScore, 525, 50);
+      text("High Score: " + intHighScore, 485, 20);
+      text("Score: " + intScore, 525, 40);
     }
   }
 
@@ -544,14 +543,18 @@ public class Sketch extends PApplet {
     }
     if (isFinish2 == true && isPaused == false){
       for (int i = 0; i < intLives; i++){
-          image(imgHeart, intAddX, 0);
-          intAddX = intAddX + 35;
+          image(imgHeart, intAddX, 10);
+          intAddX = intAddX + 17;
       }  
     } 
   }
 
-  public void speedIncrease() {
+  public int popSpeed() {
+    return Math.max(30, 120 - 30*(intScore/10)); 
+  }
 
+  public float runSpeed() {
+    return Math.min((float)2.5, 1 + (float)(0.5*(intScore/10))); 
   }
 
 }
