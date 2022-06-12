@@ -1,5 +1,6 @@
 import processing.core.PApplet;
 import processing.core.PImage;
+import java.util.ArrayList;
 
 class Hole {
   // Attributes
@@ -77,8 +78,7 @@ public class Sketch extends PApplet {
     return imgFrame;
   }
 	
-  PImage[] imgMoveRabbit = new PImage[4];
-
+  ArrayList<PImage> imgMoveRabbit = new ArrayList<>();
 
   float[] fltRabbitY = new float[3];
   float[] fltRabbitX = new float[3];
@@ -143,10 +143,10 @@ public class Sketch extends PApplet {
     Rabbit.imgRabbit[0].resize(width / 6, height / 6);
     Rabbit.imgRabbit[1] = loadImage("912139339.png", 9, 6, 3, 1);
     Rabbit.imgRabbit[1].resize(width / 6, height / 6);
-    imgMoveRabbit[0] = loadImage("bunny-hop-spritesheet.png", 4, 4, 0, 1);
-    imgMoveRabbit[1] = loadImage("bunny-hop-spritesheet.png", 4, 4, 1, 1);
-    imgMoveRabbit[2] = loadImage("bunny-hop-spritesheet.png", 4, 4, 2, 1);
-    imgMoveRabbit[3] = loadImage("bunny-hop-spritesheet.png", 4, 4, 3, 1);
+    imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 0, 1));
+    imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 1, 1));
+    imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 2, 1));
+    imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 3, 1));
 
     imgGrass = loadImage("istockphoto-951924976-170667a.jpg");
     imgGrass.resize(width, height);
@@ -447,7 +447,7 @@ public class Sketch extends PApplet {
               isRabbitsRunning = false;
             }
           }
-          image(imgMoveRabbit[(frameCount / 5) % intBunnyFrames], fltRabbitX[i], fltRabbitY[i]);
+          image(imgMoveRabbit.get((frameCount / 5) % intBunnyFrames), fltRabbitX[i], fltRabbitY[i]);
           fltRabbitX[i]+=runSpeed();
         }
       }
