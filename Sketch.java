@@ -89,6 +89,7 @@ public class Sketch extends PApplet {
   PImage imgScope;
   PImage imgGunShot;
   PImage imgRabbitShadow;
+  PImage imgHeart;
 
 
   // Hole spawning variables
@@ -113,7 +114,8 @@ public class Sketch extends PApplet {
   // Counter variables
   boolean[] isAlive = new boolean[3]; 
   int intScore = 0;
-  int intFinalScore = 0;
+  int intHighScore = 0;
+  int intScoreCompare;
   int intLiveRabbits = 0;
   static int intLives = 5;
 
@@ -159,6 +161,9 @@ public class Sketch extends PApplet {
 
     imgRabbitShadow = loadImage("rabbitshadow1.png");
     imgRabbitShadow.resize(width / 8, height / 8);
+
+    imgHeart = loadImage("heart-png-15.png");
+    imgHeart.resize(width / 18, height / 18);
 
     imgMovingBunnies = loadImage("bunny-hop-spritesheet.png");
     intBunnyFrameWidth = imgMovingBunnies.width / 4;
@@ -354,9 +359,12 @@ public class Sketch extends PApplet {
       text("Start", 265, 410);
       text("RABBIT SHOOTER GAME", 140, 200);
       intLives = 5;
+      if (intHighScore < intScoreCompare){
+        intHighScore = intScoreCompare;
+      }
       fill(255);
       textSize(20);
-      text("High score: " + intFinalScore, 30, 40);
+      text("High score: " + intHighScore, 30, 40);
       
       if (mousePressed){
         if (mouseX > 250 && mouseX < 350){
@@ -397,7 +405,7 @@ public class Sketch extends PApplet {
         if (mousePressed && isRabbitHit2(mouseX, mouseY)){
           rabbitPop.killed(frameCount);
           intScore++;
-          intFinalScore = intScore;
+          intScoreCompare = intScore;
         }  
       } 
     }
@@ -430,7 +438,7 @@ public class Sketch extends PApplet {
           if (mousePressed && isRabbitHit(mouseX, mouseY, i)){
             isAlive[i] = false;
             intScore++;
-            intFinalScore = intScore;
+            intScoreCompare = intScore;
             intLiveRabbits--;
           }
           if (isAlive[i] && fltRabbitX[i] >= 600){
@@ -536,7 +544,7 @@ public class Sketch extends PApplet {
     }
     if (isFinish2 == true && isPaused == false){
       for (int i = 0; i < intLives; i++){
-          rect(intAddX, 0, 30, 30);
+          image(imgHeart, intAddX, 0);
           intAddX = intAddX + 35;
       }  
     } 
