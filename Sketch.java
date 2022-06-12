@@ -386,7 +386,7 @@ public class Sketch extends PApplet {
       if (rabbitPop.isAlive()){
         image(Rabbit.imgRabbit[rabbitPop.intState], rabbitPop.hole.fltX - 20, rabbitPop.hole.fltY - 60);
       }
-      if (frameCount % 60 == 0){        
+      if (frameCount % 75 == 0){        
         rabbitPop.move();
       }
       image(imgScope, mouseX - 30, mouseY - 30);
@@ -416,7 +416,7 @@ public class Sketch extends PApplet {
       while (a < fltRabbitY.length) {
         fltRabbitY[a] = (float)(Math.random() * (600 - intBunnyFrameHeight));
           if (!isRabbitOverlap(a)){
-            fltRabbitX[a] = 0;
+            fltRabbitX[a] = (a * -200);
             isAlive[a] = true;
             intLiveRabbits++;            
             a++;
@@ -433,10 +433,13 @@ public class Sketch extends PApplet {
             intFinalScore = intScore;
             intLiveRabbits--;
           }
-          if (fltRabbitX[i] >= 600){
-            isRabbitsRunning = false;
+          if (isAlive[i] && fltRabbitX[i] >= 600){
             intLiveRabbits--;
             intLives--;
+            isAlive[i] = false;
+            if(i==2){
+              isRabbitsRunning = false;
+            }
           }
           image(imgMoveRabbit[(frameCount / 5) % intBunnyFrames], fltRabbitX[i], fltRabbitY[i]);
           fltRabbitX[i]++;
@@ -497,7 +500,7 @@ public class Sketch extends PApplet {
    */
   public void showScore() {
     if (isFinish2 == true){
-      fill(255);
+      fill(255,255,0);
       textSize(15);
       text("Score: " + intScore, 525, 50);
     }
@@ -540,7 +543,7 @@ public class Sketch extends PApplet {
   }
 
   public void speedIncrease() {
-    
+
   }
 
 }
