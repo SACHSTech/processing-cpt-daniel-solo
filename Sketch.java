@@ -37,16 +37,37 @@ class Rabbit {
   public float getY() {
     return hole.fltY - 15;
   }  
-  
+
+  /**
+   * Records the frameCount when the rabbit is killed
+   * 
+   * @param intFrameCount The frame count when rabbit dies
+   * @return nothing
+   * 
+   */
   public void killed(int intFrameCount) {
     intState = intDead;
     intDeadCount = intFrameCount;    
   }
 
+  /**
+   * Checks to see if the rabbit's state is alive
+   * 
+   * @param nothing
+   * @return true or false
+   * 
+   */
   public boolean isAlive() {
     return intState < intDead;
   }
 
+   /**
+   * Changes the state of jumping rabbits  
+   * 
+   * @param nothing
+   * @return nothing
+   * 
+   */
   public void move() {
     if (isAlive() == true){
       intState++;
@@ -361,8 +382,9 @@ public class Sketch extends PApplet {
       text("RABBIT SHOOTER GAME", 140, 200);
       intLives = 5;
       fill(255);
-      textSize(20);
-      text("High score: " + intHighScore, 30, 40);
+      textSize(15);
+      text("Press TAB to pause", 230, 270);
+      text("High score: " + intHighScore, 10, 20);
       
       if (mousePressed){
         if (mouseX > 250 && mouseX < 350){
@@ -488,7 +510,6 @@ public class Sketch extends PApplet {
    * 
    */
   public boolean isRabbitHit2(float fltX2, float fltY2) {
-    rect( rabbitPop.getX() - 5, rabbitPop.getY() - 5 , intJumpFramesWidth + 10, intJumpFramesHeight + 10);
     if (fltX2 >= rabbitPop.getX() - 5  && fltX2 <= rabbitPop.getX() + intJumpFramesWidth + 5){
       if (fltY2 >= rabbitPop.getY() - 5 && fltY2 <= rabbitPop.getY() + intJumpFramesHeight + 5){
         return true;
@@ -549,11 +570,29 @@ public class Sketch extends PApplet {
     } 
   }
 
+  /**
+   * Sets the speed for the jumping rabbits
+   * 
+   * @param nothing
+   * @return The speed for the jumping rabbits
+   * 
+   */
   public int popSpeed() {
+    // Looks to see which value is larger and returns that value
+    // Fastest rabbit pop speed is 1/2 a second or frameCount of 30
     return Math.max(30, 120 - 15*(intScore/10)); 
   }
 
+  /**
+   * Sets the speed for the moving rabbits
+   * 
+   * @param nothing
+   * @return The speed for the moving rabbits (float)
+   * 
+   */
   public float runSpeed() {
+    // Looks to see which value is smaller and returns that value
+    // Fastest speed for rabbit running is 2.5
     return Math.min((float)2.5, 1 + (float)(0.25*(intScore/10))); 
   }
 
