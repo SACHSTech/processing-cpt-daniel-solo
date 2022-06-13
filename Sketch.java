@@ -30,16 +30,8 @@ class Rabbit {
      this.intSpawnCount = intFrameCount;
   }
 
-  public float getX() {
-    return hole.fltX + 15;
-  }
-
-  public float getY() {
-    return hole.fltY - 15;
-  }  
-
   /**
-   * Records the frameCount when the rabbit is killed
+   * Records the frameCount when the popping rabbit is killed
    * 
    * @param intFrameCount The frame count when rabbit dies
    * @return nothing
@@ -71,6 +63,7 @@ class Rabbit {
   public void move() {
     if (isAlive() == true){
       intState++;
+      // If intState is 2, lose a life 
       if (intState == 2){
         Sketch.intLives--;
       }
@@ -99,11 +92,14 @@ public class Sketch extends PApplet {
     return imgFrame;
   }
 	
+  // ArrayList for the different frames of running rabbit
   ArrayList<PImage> imgMoveRabbit = new ArrayList<>();
 
+  // Moving rabbit x and y locations
   float[] fltRabbitY = new float[3];
   float[] fltRabbitX = new float[3];
 
+  // Create an instance of the Rabbit class
   Rabbit rabbitPop;
 
   // Declare image variables
@@ -111,14 +107,13 @@ public class Sketch extends PApplet {
   PImage imgHoles;
   PImage imgScope;
   PImage imgGunShot;
-  PImage imgRabbitShadow;
   PImage imgHeart;
 
 
   // Hole spawning variables
   Hole[] holes = new Hole[10];
 
-  // Variables for loading screen and to only draw once
+  // Variables for loading screen, pause screen, and moving rabbits
   boolean isFinish2 = false;
   boolean isRabbitsRunning = false;
   boolean isPaused = false;
@@ -160,37 +155,44 @@ public class Sketch extends PApplet {
    * 
    */
   public void setup() {
+    // Load popping rabbits frames and resize
     Rabbit.imgRabbit[0] = loadImage("912139339.png", 9, 6, 3, 2);
     Rabbit.imgRabbit[0].resize(width / 6, height / 6);
     Rabbit.imgRabbit[1] = loadImage("912139339.png", 9, 6, 3, 1);
     Rabbit.imgRabbit[1].resize(width / 6, height / 6);
+
+    // Load moving rabbits frames into arrayList with .add()
     imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 0, 1));
     imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 1, 1));
     imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 2, 1));
     imgMoveRabbit.add(loadImage("bunny-hop-spritesheet.png", 4, 4, 3, 1));
 
+    // Load background and resize
     imgGrass = loadImage("istockphoto-951924976-170667a.jpg");
     imgGrass.resize(width, height);
 
+    // Load hole and resize
     imgHoles = loadImage("soil_PNG43.png");
     imgHoles.resize(width / 9, height / 9);
 
+    // Load scope and resize
     imgScope = loadImage("Scope_PNG.png");
     imgScope.resize(width / 8, height / 8);
 
+    // Load bullet hole and resize
     imgGunShot = loadImage("GunShot.png"); 
     imgGunShot.resize(width / 8, height / 8);
 
-    imgRabbitShadow = loadImage("rabbitshadow1.png");
-    imgRabbitShadow.resize(width / 8, height / 8);
-
+    // Load heart image and resize
     imgHeart = loadImage("heart-png-15.png");
     imgHeart.resize(width / 36, height / 36);
 
+    // Create variables for moving rabbit frameWidth and frameHeight
     imgMovingBunnies = loadImage("bunny-hop-spritesheet.png");
     intBunnyFrameWidth = imgMovingBunnies.width / 4;
     intBunnyFrameHeight = imgMovingBunnies.height / 4;
 
+    // Create variables for popping rabbit frameWidth and frameHeight
     imgJumpBunnies = loadImage("bunny-hop-spritesheet.png");
     intJumpFramesWidth = imgJumpBunnies.width / 9 + 5;
     intJumpFramesHeight = imgJumpBunnies.height / 6 + 20;    
@@ -221,17 +223,20 @@ public class Sketch extends PApplet {
    * 
    */
   public void randomHoles() {
-      int i = 0;
-      while (i < holes.length){
-        holes[i] = new Hole((float)(Math.random() * (600 - imgHoles.width)), (float)(Math.random() * (600 - imgHoles.height)));
-        for (int j = 0; j < i; j++){
-           if (isHoleOverlap(holes[j], holes[i].fltX, holes[i].fltY)){
-              i--;
-              break;
-           }
+    // Create random values for hole x and y locations
+    int i = 0;
+    while (i < holes.length){
+      holes[i] = new Hole((float)(Math.random() * (600 - imgHoles.width)), (float)(Math.random() * (600 - imgHoles.height)));
+      for (int j = 0; j < i; j++){
+        // If the holes overlap, go back and create a new location for the latest hole
+        // Example of nested loop
+        if (isHoleOverlap(holes[j], holes[i].fltX, holes[i].fltY)){
+          i--;
+          break;
         }
-        i++;
       }
+    i++;
+    }
   }
   
   /**
@@ -270,15 +275,18 @@ public class Sketch extends PApplet {
   /**
    * Checks if the holes are overlapping
    * 
-   * @param i     Index value of the second rabbit 
+   * @param i     Index value of the new rabbit 
    * @return      true or false (If overlap)
    * 
    */
   public boolean isRabbitOverlap(int i) {
+    // i represents the new rabbit; j represents the old rabbit
     for (int j = 0; j < i; j++){
+        // Checks to see if the new rabbit's Y coordinate is inside the old rabbit 
         if (fltRabbitY[i] >= fltRabbitY[j] && fltRabbitY[i] <= fltRabbitY[j] + intBunnyFrameHeight){
           return true;
         }
+        // Checks to see if the old rabbit's Y coordinate is inside the new rabbit
         if (fltRabbitY[j] >= fltRabbitY[i] && fltRabbitY[j] <= fltRabbitY[i] + intBunnyFrameHeight){
           return true;
         }
@@ -294,6 +302,7 @@ public class Sketch extends PApplet {
    * 
    */
   public void drawHoles() {
+    // Example of for each loop
     for (Hole hole : holes) {
       image(imgHoles, hole.fltX, hole.fltY);
     }
@@ -510,8 +519,8 @@ public class Sketch extends PApplet {
    * 
    */
   public boolean isRabbitHit2(float fltX2, float fltY2) {
-    if (fltX2 >= rabbitPop.getX() - 5  && fltX2 <= rabbitPop.getX() + intJumpFramesWidth + 5){
-      if (fltY2 >= rabbitPop.getY() - 5 && fltY2 <= rabbitPop.getY() + intJumpFramesHeight + 5){
+    if (fltX2 >= rabbitPop.hole.fltX + 10  && fltX2 <= rabbitPop.hole.fltX + intJumpFramesWidth + 20){
+      if (fltY2 >= rabbitPop.hole.fltY - 20 && fltY2 <= rabbitPop.hole.fltY + intJumpFramesHeight - 10){
         return true;
       }
     }
