@@ -2,6 +2,11 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import java.util.ArrayList;
 
+/**
+ * Description: 
+ * @author: D. Gu
+ */
+
 class Hole {
   // Attributes
   float fltX;
@@ -20,7 +25,9 @@ class Rabbit {
   static PImage[] imgRabbit = new PImage[2];
   Hole hole;
   int intState;
+  // frameCount when the popping rabbit spawns
   int intSpawnCount;
+  // frameCount when the popping rabbit dies
   int intDeadCount;
   
   // Constructor
@@ -50,6 +57,7 @@ class Rabbit {
    * 
    */
   public boolean isAlive() {
+    // Is intState less than 2
     return intState < intDead;
   }
 
@@ -242,9 +250,9 @@ public class Sketch extends PApplet {
   /**
    * Checks if the holes are overlapping
    * 
-   * @param hole  The first hole that has already been drawn
-   * @param x     The x coordinate of second hole
-   * @param y     The y coordinate of second hole
+   * @param hole  The holes that have already been drawn
+   * @param x     The x coordinate of new hole
+   * @param y     The y coordinate of new hole
    * @return      true or false (If overlap)
    * 
    */
@@ -316,6 +324,7 @@ public class Sketch extends PApplet {
    * 
    */
   public void mouseMoved() {
+    // If not in loading screen and not in pause screen
     if (isFinish2 == true && isPaused == false) {
       image(imgScope, mouseX - 30, mouseY - 30);
     }
@@ -331,6 +340,7 @@ public class Sketch extends PApplet {
   public void pauseScreen() { 
     if (keyPressed && isFinish2 == true){
       if (key == TAB){
+        // Pausing screen
         isPaused = true;
         background(0);
         fill(134);
@@ -344,6 +354,7 @@ public class Sketch extends PApplet {
     }
     keyReleased();
     
+    // To get out of the pausing screen press a button
     if (mousePressed){
       if (mouseX > 200 && mouseX < 400){
         if (mouseY > 350 && mouseY < 450){
@@ -361,6 +372,7 @@ public class Sketch extends PApplet {
    * 
    */
   public void keyReleased() {
+    // Draws the pausing screen so it will not flicker away
     if (key == TAB && isFinish2 == true && isPaused == true){
       background(0);
       fill(134);
@@ -381,6 +393,7 @@ public class Sketch extends PApplet {
    * 
    */
   public void loadingScreen() {
+    // Checks if it is in the loading screen (false = loading screen)
     if (isFinish2 == false){
       background(0);
       fill(255);
@@ -389,12 +402,15 @@ public class Sketch extends PApplet {
       fill(0, 408, 612);
       text("Start", 265, 410);
       text("RABBIT SHOOTER GAME", 140, 200);
+      // Initializes the number of lives
       intLives = 5;
       fill(255);
       textSize(15);
       text("Press TAB to pause", 230, 270);
+      // Displays the high score
       text("High score: " + intHighScore, 10, 20);
       
+      // If user presses a button, loading screen ends
       if (mousePressed){
         if (mouseX > 250 && mouseX < 350){
           if (mouseY > 350 && mouseY < 450){
@@ -416,13 +432,17 @@ public class Sketch extends PApplet {
   public void rabbitJump() {
     if (isFinish2 == true && isPaused == false){
       drawHoles();
+      // Create a new rabbit if the rabbit is null or 1 second after the rabbit dies
       if (rabbitPop == null || (!rabbitPop.isAlive() &&  frameCount > rabbitPop.intDeadCount + 60)){
         int intHole = (int)(Math.random() * 10);
         rabbitPop = new Rabbit(holes[intHole], frameCount);
       }
+      // Draw the rabbit image if the rabbit is alive
       if (rabbitPop.isAlive()){
         image(Rabbit.imgRabbit[rabbitPop.intState], rabbitPop.hole.fltX - 20, rabbitPop.hole.fltY - 60);
       }
+      // Declares the amount of time need for rabbit to change state
+      // Depends on the popSpeed() method
       if ((frameCount - rabbitPop.intSpawnCount + 1) % popSpeed() == 0){        
         rabbitPop.move();
       }
@@ -430,6 +450,7 @@ public class Sketch extends PApplet {
       if (mousePressed == true){
         image(imgGunShot, mouseX - 30, mouseY - 30);
       }
+      // If the rabbit is shot and killed, record the frame count and add a point
       if (rabbitPop.isAlive()){
         if (mousePressed && isRabbitHit2(mouseX, mouseY)){
           rabbitPop.killed(frameCount);
@@ -448,10 +469,12 @@ public class Sketch extends PApplet {
    * 
    */
   public void rabbitMove() {
+    // If the rabbit stops running create new rabbit x and y locations
     if (isRabbitsRunning ==  false){
       int a = 0;
       while (a < fltRabbitY.length) {
         fltRabbitY[a] = (float)(Math.random() * (600 - intBunnyFrameHeight));
+          // If the rabbit y values overlap, will skip this step and a will not ++
           if (!isRabbitOverlap(a)){
             fltRabbitX[a] = (a * -200);
             isAlive[a] = true;
@@ -464,27 +487,33 @@ public class Sketch extends PApplet {
     if (isFinish2 == true && isPaused == false){
       for (int i = 0; i < fltRabbitY.length; i++){ 
         if (isAlive[i]){
+          // If rabbit is hit, add score and make isAlive[i] = false
           if (mousePressed && isRabbitHit(mouseX, mouseY, i)){
             isAlive[i] = false;
             intScore++;
             intHighScore = Math.max(intHighScore, intScore);
             intLiveRabbits--;
           }
+          // If the rabbit makes it to the end of the map lose a life
           if (isAlive[i] && fltRabbitX[i] >= 600){
             intLiveRabbits--;
             intLives--;
             isAlive[i] = false;
-            if(i==2){
+            // Once the last rabbit makes it off the screen, make isRabbitRunning false
+            if (i == 2){
               isRabbitsRunning = false;
             }
           }
           image(imgMoveRabbit.get((frameCount / 5) % intBunnyFrames), fltRabbitX[i], fltRabbitY[i]);
+          // Add changing runspeed to fltRabbitX[i] which is controlled by the score
           fltRabbitX[i]+=runSpeed();
         }
       }
+      // If all the rabbits are shot to death, make isRabbitRunning false
       if (intLiveRabbits <= 0){
         isRabbitsRunning = false;
       }
+      // Gunscope and gunshot images
       image(imgScope, mouseX - 30, mouseY - 30);
       if (mousePressed == true){
         image(imgGunShot, mouseX - 30, mouseY - 30);
@@ -502,7 +531,9 @@ public class Sketch extends PApplet {
    * 
    */
   public boolean isRabbitHit(float fltX, float fltY, int intNum) {
+    // If the user's mouse intersects with the x coordinates of the rabbit
     if (fltX >= fltRabbitX[intNum] && fltX <= fltRabbitX[intNum] + intBunnyFrameWidth){
+      // If the user's mouse intersects with the y coordinates of the rabbit
       if (fltY >= fltRabbitY[intNum] && fltY <= fltRabbitY[intNum] + intBunnyFrameHeight){
         return true;
       }
@@ -519,6 +550,7 @@ public class Sketch extends PApplet {
    * 
    */
   public boolean isRabbitHit2(float fltX2, float fltY2) {
+    // Hit box for the jumping rabbits (fltX2 and fltY2 represent mouse coordinates)
     if (fltX2 >= rabbitPop.hole.fltX + 10  && fltX2 <= rabbitPop.hole.fltX + intJumpFramesWidth + 20){
       if (fltY2 >= rabbitPop.hole.fltY - 20 && fltY2 <= rabbitPop.hole.fltY + intJumpFramesHeight - 10){
         return true;
@@ -535,6 +567,7 @@ public class Sketch extends PApplet {
    * 
    */
   public void showScore() {
+    // If the loading screen is not displayed
     if (isFinish2 == true){
       fill(255,255,0);
       textSize(15);
@@ -551,6 +584,7 @@ public class Sketch extends PApplet {
    * 
    */
   public void clearRabbits() {
+    // Return all important variables to their intial state
     isPaused = false;
     isFinish2 = false;
     rabbitPop = null;
@@ -568,12 +602,15 @@ public class Sketch extends PApplet {
   public void drawLives() {
     int intAddX = 0;
     if (intLives <= 0){
+      // If user has 0 or less lives, clearRabbits()
       clearRabbits();
       intScore = 0;
     }
+    // Draw the number of the hearts based on the lives that the user has
     if (isFinish2 == true && isPaused == false){
       for (int i = 0; i < intLives; i++){
           image(imgHeart, intAddX, 10);
+          // Move 17 pixels right every time
           intAddX = intAddX + 17;
       }  
     } 
