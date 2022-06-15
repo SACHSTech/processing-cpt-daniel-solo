@@ -281,7 +281,7 @@ public class Sketch extends PApplet {
   }
 
   /**
-   * Checks if the holes are overlapping
+   * Checks if the moving rabbits are overlapping
    * 
    * @param i     Index value of the new rabbit 
    * @return      true or false (If overlap)
@@ -626,7 +626,7 @@ public class Sketch extends PApplet {
   public int popSpeed() {
     // Looks to see which value is larger and returns that value
     // Fastest rabbit pop speed is 1/2 a second or frameCount of 30
-    return Math.max(30, 120 - 15*(intScore/10)); 
+    return Math.max(30, 120 - 15 * (intScore / 10)); 
   }
 
   /**
@@ -639,7 +639,7 @@ public class Sketch extends PApplet {
   public float runSpeed() {
     // Looks to see which value is smaller and returns that value
     // Fastest speed for rabbit running is 2.5
-    return Math.min((float)2.5, 1 + (float)(0.25*(intScore/10))); 
+    return Math.min((float)2.5, 1 + (float)(0.25 * (intScore / 10))); 
   }
 
 }
