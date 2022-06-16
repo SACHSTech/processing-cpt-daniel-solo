@@ -438,7 +438,7 @@ public class Sketch extends PApplet {
         rabbitPop = new Rabbit(holes[intHole], frameCount);
       }
       // Draw the rabbit image if the rabbit is alive
-      if (rabbitPop.isAlive()){
+      else if (rabbitPop.isAlive()){
         image(Rabbit.imgRabbit[rabbitPop.intState], rabbitPop.hole.fltX - 20, rabbitPop.hole.fltY - 60);
       }
       // Declares the amount of time need for rabbit to change state
@@ -495,7 +495,7 @@ public class Sketch extends PApplet {
             intLiveRabbits--;
           }
           // If the rabbit makes it to the end of the map lose a life
-          if (isAlive[i] && fltRabbitX[i] >= 600){
+          else if (isAlive[i] && fltRabbitX[i] >= 600){
             intLiveRabbits--;
             intLives--;
             isAlive[i] = false;
